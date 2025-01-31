@@ -141,9 +141,15 @@ const buyPlayer = async (req, res) => {
 const getTransferList = async (req, res) => {
   try {
     const transfers = await Transfer.find({ status: "Pending" })
-      .populate("player")
+      // .populate("player")
+      .populate({
+        path: "player",
+        populate: { path: "team", select: "name budget" }, // Populating team details
+      })
       .populate("fromTeam")
+      // .populate("Team")
       .sort({ createdAt: -1 });
+    console.log("transfers", transfers);
     res.json({ transfers });
   } catch (err) {
     console.error("Error fetching transfer list:", err);
