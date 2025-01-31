@@ -1,37 +1,5 @@
+const { faker } = require("@faker-js/faker");
 const Player = require("../models/Player");
-
-const playerNames = [
-  "Liam",
-  "Noah",
-  "Oliver",
-  "Elijah",
-  "James",
-  "William",
-  "Benjamin",
-  "Lucas",
-  "Henry",
-  "Alexander",
-  "Mason",
-  "Michael",
-  "Ethan",
-  "Daniel",
-  "Jacob",
-  "Logan",
-  "Jackson",
-  "Levi",
-  "Sebastian",
-  "Mateo",
-  "Jack",
-  "Owen",
-  "Theodore",
-  "Aiden",
-  "Samuel",
-  "Joseph",
-  "John",
-  "David",
-  "Wyatt",
-  "Matthew",
-];
 
 const positions = ["Goalkeeper", "Defender", "Midfielder", "Attacker"];
 
@@ -43,52 +11,43 @@ const generatePlayers = async (teamId) => {
     Attacker: 6,
   };
 
-  const players = [];
-  let usedNames = new Set();
+  const players = new Set();
 
+  // Generate unique player names
+  while (players.size < 500) {
+    players.add(faker.person.firstName());
+  }
+
+  const playersArray = [...players];
+  const finalPlayers = [];
+
+  let index = 0;
   for (const position in positionCounts) {
     for (let i = 0; i < positionCounts[position]; i++) {
-      let name;
-
-      do {
-        name = playerNames[Math.floor(Math.random() * playerNames.length)];
-      } while (usedNames.has(name));
-
-      usedNames.add(name);
-
-      const player = new Player({
-        name,
-        position,
-        price: Math.floor(Math.random() * 500000) + 50000,
-        teamId,
-      });
-
-      players.push(player);
+      finalPlayers.push(
+        new Player({
+          name: playersArray[index++],
+          position,
+          price: Math.floor(Math.random() * 500000) + 50000,
+          teamId,
+        })
+      );
     }
   }
 
-  for (let i = 0; i < 7; i++) {
-    let name;
-    do {
-      name = playerNames[Math.floor(Math.random() * playerNames.length)];
-    } while (usedNames.has(name));
-
-    usedNames.add(name);
-
-    const randomPosition =
-      positions[Math.floor(Math.random() * positions.length)];
-
-    players.push(
+  // Add 7 more players with random positions
+  while (index < 500) {
+    finalPlayers.push(
       new Player({
-        name,
-        position: randomPosition,
+        name: playersArray[index++],
+        position: positions[Math.floor(Math.random() * positions.length)],
         price: Math.floor(Math.random() * 500000) + 50000,
         teamId,
       })
     );
   }
 
-  await Player.insertMany(players);
+  await Player.insertMany(finalPlayers);
   console.log("30 random players created successfully!");
 };
 

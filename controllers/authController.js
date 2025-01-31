@@ -12,55 +12,44 @@ const registerOrLogin = async (req, res) => {
     let user = await User.findOne({ email });
 
     if (!user) {
-      // Register new user
       user = new User({ email, password });
       await user.save();
 
-      // Generate team name from email (part before @)
       const teamName = email.split("@")[0];
 
-      // Check if a team with the same name already exists
       const existingTeam = await Team.findOne({ name: teamName });
       if (existingTeam) {
         return res.status(400).json({ message: "Team name already exists" });
       }
 
-      // Create a team for the user
       const team = new Team({
         user: user._id,
         budget: 5000000,
-        name: teamName, // Use the generated team name
+        name: teamName,
       });
       await team.save();
 
-      // Fetch all players from the database
-      const allPlayers = await Player.find({});
+      const unassignedPlayers = await Player.find({ team: { $exists: false } });
 
-      // Select random players for the team
-      const selectedPlayers = selectRandomPlayers(allPlayers);
+      const selectedPlayers = selectRandomPlayers(unassignedPlayers);
 
-      // Assign the selected players to the team
       team.players = selectedPlayers.map((player) => player._id);
       await team.save();
 
-      // Update the players' team field
       await Player.updateMany(
         { _id: { $in: selectedPlayers.map((player) => player._id) } },
         { $set: { team: team._id } }
       );
 
-      // Assign the team to the user
       user.team = team._id;
       await user.save();
     }
 
-    // Check password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    // Generate JWT
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
       expiresIn: "1h",
     });
