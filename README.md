@@ -28,6 +28,8 @@ This is the backend for the **Football Manager** application, built with **Node.
 
 1. Clone the repository:
 
-   ```bash
    git clone https://github.com/your-username/football-manager.git
    cd football-manager/backend
+   npm install
+   npm run dev
+
