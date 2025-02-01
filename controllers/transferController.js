@@ -34,7 +34,6 @@ const toggleTransferList = async (req, res) => {
       return res.status(404).json({ message: "Player's team not found" });
     }
 
-    // Check if the player is already on the transfer list
     if (isOnTransferList) {
       const existingTransfer = await Transfer.findOne({
         player: playerId,
@@ -46,11 +45,9 @@ const toggleTransferList = async (req, res) => {
           .json({ message: "Player is already on the transfer list" });
       }
     } else {
-      // Remove the pending transfer if the player is taken off the transfer list
       await Transfer.deleteOne({ player: playerId, status: "Pending" });
     }
 
-    // Toggle the transfer list status and update the player's asking price
     player.isOnTransferList = isOnTransferList;
     player.askingPrice = askingPrice;
     await player.save();
@@ -156,13 +153,13 @@ const buyPlayer = async (req, res) => {
 const getTransferList = async (req, res) => {
   try {
     const transfers = await Transfer.find({ status: "Pending" })
-      // .populate("player")
+
       .populate({
         path: "player",
-        populate: { path: "team", select: "name budget" }, // Populating team details
+        populate: { path: "team", select: "name budget" },
       })
       .populate("fromTeam")
-      // .populate("Team")
+
       .sort({ createdAt: -1 });
     res.json({ transfers });
   } catch (err) {

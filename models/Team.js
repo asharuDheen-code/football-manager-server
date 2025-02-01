@@ -5,7 +5,7 @@ const teamSchema = new mongoose.Schema({
     type: String,
     // required: true,
     // unique: true,
-  }, // Ensure team names are unique
+  },
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",

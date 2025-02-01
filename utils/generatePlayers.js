@@ -13,7 +13,6 @@ const generatePlayers = async (teamId) => {
 
   const players = new Set();
 
-  // Generate unique player names
   while (players.size < 500) {
     players.add(faker.person.firstName());
   }
@@ -35,7 +34,6 @@ const generatePlayers = async (teamId) => {
     }
   }
 
-  // Add 7 more players with random positions
   while (index < 500) {
     finalPlayers.push(
       new Player({
